@@ -1,0 +1,7 @@
+# A gitignore file
+
+# ignore the __pycache__ directory
+
+__pycache__/
+
+venv/
