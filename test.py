@@ -1,7 +1,8 @@
 import random
 import time
 
-points = [random.randint(-1000,1000) for i in range(1000)]
+points = [random.randint(-1000, 1000) for i in range(1000)]
+
 
 def get_collision_point(a, b):
     x1 = a[0][0]
@@ -28,12 +29,12 @@ def get_collision_point(a, b):
     else:
         return None
 
+
 # Time get_collision_point for 1000 iterations on random points in a and b
 end = 0
 for _ in range(1000000):
-    a,b,c,d = [random.sample(points,2) for _ in range(4)]
+    a, b, c, d = [random.sample(points, 2) for _ in range(4)]
     start = time.perf_counter()
-    get_collision_point([a,b],[c,d])
+    get_collision_point([a, b], [c, d])
     end += time.perf_counter() - start
 print(f"get_collision_point: {end}")
-

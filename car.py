@@ -62,7 +62,6 @@ class Car:
         self.turn(steer)
         self.accelerate(acc)
 
-
     def crashed(self) -> bool:
         for laser in self.lasers:
             if math.dist((self.xPos, self.yPos), (laser.nX, laser.nY)) < 5:

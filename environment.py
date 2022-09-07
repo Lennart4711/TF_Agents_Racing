@@ -5,10 +5,7 @@ from __future__ import print_function
 import math
 from helper import *
 from car import Car
-from vector import Vector
-import pprint
 
-import tensorflow as tf
 import numpy as np
 import pygame
 
@@ -17,14 +14,9 @@ pygame.init()
 import numpy as np
 
 from tf_agents.specs import array_spec
-from tf_agents.environments import utils
 from tf_agents.environments import py_environment
-from tf_agents.environments import tf_py_environment
 from tf_agents.trajectories import time_step as ts
-from tf_agents.networks import sequential
 from tf_agents.specs import tensor_spec
-from tf_agents.agents.ppo import ppo_agent
-from tf_agents.utils import common
 
 
 class Environment(py_environment.PyEnvironment):
@@ -45,13 +37,11 @@ class Environment(py_environment.PyEnvironment):
             shape=(2,), dtype=np.float32, minimum=-1.0, maximum=1.0, name="action"
         )
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(1,6), dtype=np.float32, minimum=0, name="observation"
+            shape=(1, 6), dtype=np.float32, minimum=0, name="observation"
         )
         self._episode_ended = False
 
     def action_spec(self):
-        print("Action spec")
-        print(self._action_spec)
         return tensor_spec.from_spec(self._action_spec)
         return self._action_spec
 
@@ -68,9 +58,7 @@ class Environment(py_environment.PyEnvironment):
         # convert lasers to numpy array
         lasers = np.array(lasers)
 
-        return ts.transition(
-            observation=lasers, reward=0.0
-        )
+        return ts.transition(observation=lasers, reward=0.0)
 
     def _step(self, action):
         if self._episode_ended:
@@ -80,7 +68,7 @@ class Environment(py_environment.PyEnvironment):
         self.car.update()
         self.car.set_lasers()
         self.set_laser_length(self.car)
-            
+
         # self._episode_ended = True # Reward after every action
         # make true, if the agent crashes or reaches the goal
 
@@ -91,13 +79,11 @@ class Environment(py_environment.PyEnvironment):
             self._episode_ended = True
         else:
             reward = 0.1
-        
+
         lasers = [x.length() for x in self.car.lasers]
         # convert lasers to numpy array
         lasers = np.array(lasers)
-        return ts.transition(
-            observation=lasers, reward=reward
-        )
+        return ts.transition(observation=lasers, reward=reward)
 
     def set_laser_length(self, car):
         for i, x in enumerate(car.lasers):
@@ -108,7 +94,6 @@ class Environment(py_environment.PyEnvironment):
                     x.nY = v[1]
             d = math.dist((car.xPos, car.yPos), (x.nX, x.nY))
             # car.lengths[i] = min(d, 200)
-
 
     def get_collision_point(self, a, b):
         x1 = a.xPos
@@ -134,51 +119,9 @@ class Environment(py_environment.PyEnvironment):
         else:
             return None
 
-
-def render(self):
-    self.win.fill((0, 0, 0))
-    self.car.draw_car(self.win)
-    for x in self.borders:
-        pygame.draw.line(self.win, (255, 255, 255), x[0], x[1])
-    pygame.display.update()
-
-
-
-env = Environment()
-environment = tf_py_environment.TFPyEnvironment(env)
-
-env_name = "CartPole-v0" # @param {type:"string"}
-num_iterations = 250 # @param {type:"integer"}
-collect_episodes_per_iteration = 2 # @param {type:"integer"}
-replay_buffer_capacity = 2000 # @param {type:"integer"}
-
-fc_layer_params = (100,)
-
-learning_rate = 1e-3 # @param {type:"number"}
-log_interval = 25 # @param {type:"integer"}
-num_eval_episodes = 10 # @param {type:"integer"}
-eval_interval = 50 # @param {type:"integer"}
-
-env.reset()
-
-from tf_agents.networks import actor_distribution_network
-actor_net = actor_distribution_network.ActorDistributionNetwork(
-    env.observation_spec(),
-    env.action_spec(),
-    fc_layer_params=fc_layer_params)
-
-optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-
-train_step_counter = tf.Variable(0)
-
-from tf_agents.agents.reinforce import reinforce_agent
-tf_agent = reinforce_agent.ReinforceAgent(
-    env.time_step_spec(),
-    env.action_spec(),
-    actor_network=actor_net,
-    optimizer=optimizer,
-    normalize_returns=True,
-    train_step_counter=train_step_counter)
-tf_agent.initialize()
-print("Sucessfully initialized agent")
-
+    def render(self):
+        self.win.fill((0, 0, 0))
+        self.car.draw_car(self.win)
+        for x in self.borders:
+            pygame.draw.line(self.win, (255, 255, 255), x[0], x[1])
+        pygame.display.update()

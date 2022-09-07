@@ -93,4 +93,3 @@ class Border:
 if __name__ == "__main__":
     editor = Editor()
     editor.loop()
-    
