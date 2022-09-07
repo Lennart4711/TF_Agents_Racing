@@ -4,7 +4,7 @@ from tf_agents.environments import tf_py_environment
 
 def new_model(env):
     environment = tf_py_environment.TFPyEnvironment(env)
-    
+
     env_name = "CartPole-v0"  # @param {type:"string"}
     num_iterations = 250  # @param {type:"integer"}
     collect_episodes_per_iteration = 2  # @param {type:"integer"}
@@ -41,3 +41,4 @@ def new_model(env):
     )
     tf_agent.initialize()
     print("Sucessfully initialized agent")
+    return tf_agent

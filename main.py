@@ -3,4 +3,4 @@ from model import new_model
 
 
 train_env = Environment()
-new_model(train_env)
+agent = new_model(train_env)
