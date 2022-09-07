@@ -2,7 +2,7 @@ import tensorflow as tf
 from tf_agents.environments import tf_py_environment
 
 
-def new_model(env):
+def new_agent(env):
     environment = tf_py_environment.TFPyEnvironment(env)
 
     env_name = "CartPole-v0"  # @param {type:"string"}
