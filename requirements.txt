@@ -1,0 +1,5 @@
+numpy
+pygame
+tf_agents
+dm-reverb[tensorflow]
+matplotlib
