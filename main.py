@@ -71,6 +71,6 @@ for _ in range(num_iterations):
 # Visualize the results
 steps = range(0, num_iterations + 1, eval_interval)
 plt.plot(steps, returns)
-plt.ylabel('Average Return')
-plt.xlabel('Step')
+plt.ylabel("Average Return")
+plt.xlabel("Step")
 plt.ylim(top=250)

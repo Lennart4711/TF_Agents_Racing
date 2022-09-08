@@ -22,7 +22,8 @@ def get_collision_point(a, b):
     ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
     ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
 
-    if ua >= 0 and ua <= 1 and ub >= 0 and ub <= 1:
+    # Do the lines intersect in the given segments?
+    if 0 <= ua <= 1 and 0 <= ub <= 1:
         intersectionX = x1 + (ua * (x2 - x1))
         intersectionY = y1 + (ua * (y2 - y1))
         return [intersectionX, intersectionY]

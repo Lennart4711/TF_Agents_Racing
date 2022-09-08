@@ -54,8 +54,11 @@ class Environment(py_environment.PyEnvironment):
         self.car.set_lasers()
         self.set_laser_length(self.car)
 
-        #lasers = [x.length() for x in self.car.lasers]
-        lasers = [math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1])) for x in self.car.lasers]
+        # lasers = [x.length() for x in self.car.lasers]
+        lasers = [
+            math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1]))
+            for x in self.car.lasers
+        ]
         # convert lasers to numpy array
         lasers = np.array(lasers)
 
@@ -82,7 +85,10 @@ class Environment(py_environment.PyEnvironment):
             reward = 0.1
 
         # lasers = [x.length() for x in self.car.lasers]
-        lasers = [math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1])) for x in self.car.lasers]
+        lasers = [
+            math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1]))
+            for x in self.car.lasers
+        ]
         # convert lasers to numpy array
         lasers = np.array(lasers)
         return ts.transition(observation=lasers, reward=reward)
@@ -108,14 +114,15 @@ class Environment(py_environment.PyEnvironment):
         y4 = b[1][1]
 
         denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
-        # Line segments are parallel
         if denominator == 0:
+            # Line segments are parallel
             return None
 
         ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
         ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
 
-        if ua >= 0 and ua <= 1 and ub >= 0 and ub <= 1:
+        # Do the lines intersect in the given segments?
+        if 0 <= ua <= 1 and 0 <= ub <= 1:
             intersectionX = x1 + (ua * (x2 - x1))
             intersectionY = y1 + (ua * (y2 - y1))
             return [intersectionX, intersectionY]
