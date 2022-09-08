@@ -1,18 +1,15 @@
-from vector import Vector
 import math
 import pygame
-import time
-
+import numpy as np
 
 class Car:
     def __init__(self, x, y, r, lasers):
-
         self.xPos = x
         self.yPos = y
         self.angle = r
         self.vX = 0
         self.vY = 0
-        self.lasers = [Vector(0, 0, 0, 0)] * lasers
+        self.lasers = [np.zeros((4,))] * lasers
 
     # Sets the direction for every laser relative to the car's rotation
     def set_lasers(self):
@@ -26,13 +23,14 @@ class Car:
             )
             x = self.xPos + 600 * math.cos(radians)
             y = self.yPos + 600 * math.sin(radians)
-            self.lasers[i] = Vector(self.xPos, self.yPos, x, y)
+            #self.lasers[i] = Vector(self.xPos, self.yPos, x, y)
+            self.lasers[i] = np.array([[self.xPos, self.yPos], [x, y]])
 
     def draw_car(self, win):
         pygame.draw.circle(win, (211, 123, 23), (self.xPos, self.yPos), 5)
         laserColor = (155, 20, 155)
         for x in self.lasers:
-            pygame.draw.line(win, laserColor, (x.nX, x.nY), (self.xPos, self.yPos))
+            pygame.draw.line(win, laserColor, (x[1][0], x[1][1]), (self.xPos, self.yPos))
 
     def accelerate(self, b):
         xN = math.sin(2 * math.pi * (self.angle / 360))
@@ -64,6 +62,6 @@ class Car:
 
     def crashed(self) -> bool:
         for laser in self.lasers:
-            if math.dist((self.xPos, self.yPos), (laser.nX, laser.nY)) < 5:
+            if math.dist((self.xPos, self.yPos), (laser[1][0], laser[1][1])) < 5:
                 return True
         return False

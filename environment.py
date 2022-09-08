@@ -54,7 +54,8 @@ class Environment(py_environment.PyEnvironment):
         self.car.set_lasers()
         self.set_laser_length(self.car)
 
-        lasers = [x.length() for x in self.car.lasers]
+        #lasers = [x.length() for x in self.car.lasers]
+        lasers = [math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1])) for x in self.car.lasers]
         # convert lasers to numpy array
         lasers = np.array(lasers)
 
@@ -80,7 +81,8 @@ class Environment(py_environment.PyEnvironment):
         else:
             reward = 0.1
 
-        lasers = [x.length() for x in self.car.lasers]
+        # lasers = [x.length() for x in self.car.lasers]
+        lasers = [math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1])) for x in self.car.lasers]
         # convert lasers to numpy array
         lasers = np.array(lasers)
         return ts.transition(observation=lasers, reward=reward)
@@ -90,20 +92,21 @@ class Environment(py_environment.PyEnvironment):
             for y in self.borders:
                 v = self.get_collision_point(x, y)
                 if v is not None:
-                    x.nX = v[0]
-                    x.nY = v[1]
-            d = math.dist((car.xPos, car.yPos), (x.nX, x.nY))
+                    x[1][0] = v[0]
+                    x[1][1] = v[1]
+            d = math.dist((car.xPos, car.yPos), (x[1][0], x[1][1]))
             # car.lengths[i] = min(d, 200)
 
     def get_collision_point(self, a, b):
-        x1 = a.xPos
-        x2 = a.nX
-        y1 = a.yPos
-        y2 = a.nY
+        x1 = a[0][0]
+        x2 = a[1][0]
+        y1 = a[0][1]
+        y2 = a[1][1]
         x3 = b[0][0]
         x4 = b[1][0]
         y3 = b[0][1]
         y4 = b[1][1]
+
         denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
         # Line segments are parallel
         if denominator == 0:

@@ -1,20 +1,17 @@
 import matplotlib.pyplot as plt
+from tf_agents.utils import common
 
 from environment import Environment
 from agent import new_agent
 from helpers import compute_avg_return, collect_episode
 from observer import new_replay_buffer, new_reverb_observer
 
-from tf_agents.utils import common
-
 
 env_name = "RaceAI"  # @param {type:"string"}
 num_iterations = 250  # @param {type:"integer"}
 collect_episodes_per_iteration = 2  # @param {type:"integer"}
 replay_buffer_capacity = 2000  # @param {type:"integer"}
-
 fc_layer_params = (100,)
-
 learning_rate = 1e-3  # @param {type:"number"}
 log_interval = 25  # @param {type:"integer"}
 num_eval_episodes = 10  # @param {type:"integer"}
@@ -71,7 +68,7 @@ for _ in range(num_iterations):
         returns.append(avg_return)
 
 
-
+# Visualize the results
 steps = range(0, num_iterations + 1, eval_interval)
 plt.plot(steps, returns)
 plt.ylabel('Average Return')
