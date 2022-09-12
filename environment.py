@@ -39,16 +39,19 @@ class Environment(py_environment.PyEnvironment):
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(1, 6), dtype=np.float32, minimum=0, name="observation"
         )
+        
         self._episode_ended = False
 
     def action_spec(self):
         return tensor_spec.from_spec(self._action_spec)
-        return self._action_spec
+        # return self._action_spec
 
     def observation_spec(self):
         return self._observation_spec
 
     def _reset(self):
+        print("reset start")
+
         self._episode_ended = False
         self.car = Car(15, 15, 90, self.laser_amount)
         self.car.set_lasers()
@@ -61,8 +64,8 @@ class Environment(py_environment.PyEnvironment):
         ]
         # convert lasers to numpy array
         lasers = np.array(lasers)
-
-        return ts.transition(observation=lasers, reward=0.0)
+        print("reset last")
+        return ts.transition(observation=lasers, reward=0.0, discount=self.discount)
 
     def _step(self, action):
         if self._episode_ended:
@@ -91,10 +94,11 @@ class Environment(py_environment.PyEnvironment):
         ]
         # convert lasers to numpy array
         lasers = np.array(lasers)
+        print("step last")
         return ts.transition(observation=lasers, reward=reward)
 
     def set_laser_length(self, car):
-        for i, x in enumerate(car.lasers):
+        for x in car.lasers:
             for y in self.borders:
                 v = self.get_collision_point(x, y)
                 if v is not None:
