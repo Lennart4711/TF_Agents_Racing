@@ -63,9 +63,9 @@ class Environment(py_environment.PyEnvironment):
             for x in self.car.lasers
         ]
         # convert lasers to numpy array
-        lasers = np.array(lasers)
+        lasers = np.array(lasers, dtype=np.float32)
         print("reset last")
-        return ts.transition(observation=lasers, reward=0.0, discount=self.discount)
+        return ts.restart(observation=lasers)
 
     def _step(self, action):
         if self._episode_ended:
