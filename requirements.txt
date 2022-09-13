@@ -3,3 +3,4 @@ pygame
 tf_agents
 matplotlib
 tensorflow
+gym
