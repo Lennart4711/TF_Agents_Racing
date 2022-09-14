@@ -28,10 +28,10 @@ def compute_avg_return(environment, policy, num_episodes=10):
 
 
 def collect_step(environment, policy, replay_buffer):
-  time_step = environment.current_time_step()
-  action_step = policy.action(time_step)
-  next_time_step = environment.step(action_step.action)
-  traj = trajectory.from_transition(time_step, action_step, next_time_step)
+    time_step = environment.current_time_step()
+    action_step = policy.action(time_step)
+    next_time_step = environment.step(action_step.action)
+    traj = trajectory.from_transition(time_step, action_step, next_time_step)
 
-  # Add trajectory to the replay buffer
-  replay_buffer.add_batch(traj)
+    # Add trajectory to the replay buffer
+    replay_buffer.add_batch(traj)

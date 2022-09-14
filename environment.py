@@ -39,7 +39,7 @@ class Environment(py_environment.PyEnvironment):
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(1, 6), dtype=np.float32, minimum=0, name="observation"
         )
-        
+
         self._episode_ended = False
 
     def action_spec(self):
@@ -55,7 +55,7 @@ class Environment(py_environment.PyEnvironment):
         self._episode_ended = False
         self.car = Car(15, 15, 90, self.laser_amount)
         self.car.set_lasers()
-        self.set_laser_length(self.car)
+        self.car.set_laser_length(self.borders)
 
         # lasers = [x.length() for x in self.car.lasers]
         lasers = [
@@ -74,7 +74,7 @@ class Environment(py_environment.PyEnvironment):
         self.car.move(action[0], action[1])
         self.car.update()
         self.car.set_lasers()
-        self.set_laser_length(self.car)
+        self.car.set_laser_length(self.borders)
 
         # self._episode_ended = True # Reward after every action
         # make true, if the agent crashes or reaches the goal
@@ -96,42 +96,6 @@ class Environment(py_environment.PyEnvironment):
         lasers = np.array(lasers)
         print("step last")
         return ts.transition(observation=lasers, reward=reward)
-
-    def set_laser_length(self, car):
-        for x in car.lasers:
-            for y in self.borders:
-                v = self.get_collision_point(x, y)
-                if v is not None:
-                    x[1][0] = v[0]
-                    x[1][1] = v[1]
-            d = math.dist((car.xPos, car.yPos), (x[1][0], x[1][1]))
-            # car.lengths[i] = min(d, 200)
-
-    def get_collision_point(self, a, b):
-        x1 = a[0][0]
-        x2 = a[1][0]
-        y1 = a[0][1]
-        y2 = a[1][1]
-        x3 = b[0][0]
-        x4 = b[1][0]
-        y3 = b[0][1]
-        y4 = b[1][1]
-
-        denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
-        if denominator == 0:
-            # Line segments are parallel
-            return None
-
-        ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
-        ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
-
-        # Do the lines intersect in the given segments?
-        if 0 <= ua <= 1 and 0 <= ub <= 1:
-            intersectionX = x1 + (ua * (x2 - x1))
-            intersectionY = y1 + (ua * (y2 - y1))
-            return [intersectionX, intersectionY]
-        else:
-            return None
 
     def render(self):
         self.win.fill((0, 0, 0))

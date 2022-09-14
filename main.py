@@ -39,13 +39,16 @@ tf_agent = new_agent(train_env, fc_layer_params, learning_rate)
 tf_agent.initialize()
 
 
-replay_buffer = new_replay_buffer(tf_agent.collect_data_spec, tf_agent, train_env, replay_buffer_capacity)
+replay_buffer = new_replay_buffer(
+    tf_agent.collect_data_spec, tf_agent, train_env, replay_buffer_capacity
+)
 # print("compute_avg_return")
 # compute_avg_return(eval_env, random_policy, num_eval_episodes) # Currently not working
 
 # -- Data Collection --
-random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),
-                                                train_env.action_spec())
+random_policy = random_tf_policy.RandomTFPolicy(
+    train_env.time_step_spec(), train_env.action_spec()
+)
 
 for _ in range(initial_collect_steps):
     collect_step(train_env, random_policy, replay_buffer)

@@ -67,3 +67,38 @@ class Car:
             if math.dist((self.xPos, self.yPos), (laser[1][0], laser[1][1])) < 5:
                 return True
         return False
+
+    def set_laser_length(self, borders):
+        for x in self.lasers:
+            for y in borders:
+                v = self.get_collision_point(x, y)
+                if v is not None:
+                    x[1][0] = v[0]
+                    x[1][1] = v[1]
+            d = math.dist((self.xPos, self.yPos), (x[1][0], x[1][1]))
+
+    def get_collision_point(self, a, b):
+        x1 = a[0][0]
+        x2 = a[1][0]
+        y1 = a[0][1]
+        y2 = a[1][1]
+        x3 = b[0][0]
+        x4 = b[1][0]
+        y3 = b[0][1]
+        y4 = b[1][1]
+
+        denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
+        if denominator == 0:
+            # Line segments are parallel
+            return None
+
+        ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
+        ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
+
+        # Do the lines intersect in the given segments?
+        if 0 <= ua <= 1 and 0 <= ub <= 1:
+            intersectionX = x1 + (ua * (x2 - x1))
+            intersectionY = y1 + (ua * (y2 - y1))
+            return [intersectionX, intersectionY]
+        else:
+            return None
