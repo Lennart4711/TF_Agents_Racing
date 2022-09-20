@@ -1,9 +1,10 @@
 import gym
-from gym import spaces
-from car import Car
-from helper import load_boarders
+import pygame
 import numpy as np
 import math
+from gym import spaces
+from envs.car import Car
+from envs.helper import load_boarders
 
 
 class RacingEnv(gym.Env):
@@ -16,21 +17,32 @@ class RacingEnv(gym.Env):
         self.car.set_lasers()
         self.car.set_laser_length(self.borders)
 
+        self.win = pygame.display.set_mode((600, 600))
+
         # A list of 6 float values between 0 and 600
         self.observation_space = spaces.Box(
             low=0, high=600, shape=(6,), dtype=np.float32
         )
+        # self.observation_space = spaces.Dict(
+        #     {
+        #         "laser": spaces.Box(
+        #             low=0, high=600, shape=(self.laser_amount,), dtype=np.float32
+        #         ),
+        #         "angle": spaces.Box(low=0, high=360, shape=(1,), dtype=np.float32),
+        #     }
+        # )
 
         # Allow two actions: steering and speed
-        self.action_space = spaces.Box(
-            low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float32
-        )
+        self.action_space = spaces.Box(low=-1, high=1, shape=(2,), dtype=np.float32)
 
     def _get_obs(self):
         lasers = [
             math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1]))
             for x in self.car.lasers
         ]
+
+        # return {"laser": np.array(lasers), "angle": np.asarray(self.car.angle)}
+
         return np.array(lasers)
 
     def _get_info(self):
@@ -62,11 +74,12 @@ class RacingEnv(gym.Env):
 
         return observation, reward, terminated, False, info
 
+    def render(self, mode="human"):
+        self.win.fill((80, 100, 100))
+        self.car.draw(self.win)
+        for border in self.borders:
+            pygame.draw.line(self.win, (255, 255, 255), border[0], border[1], 2)
+        pygame.display.update()
+
     def close(self):
         pass
-
-
-env = RacingEnv()
-env.reset()
-print(env.observation_space.sample(), type(env.observation_space.sample()))
-print(env._get_obs(), type(env._get_obs()))

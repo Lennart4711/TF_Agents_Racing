@@ -11,6 +11,7 @@ class Car:
         self.vX = 0
         self.vY = 0
         self.lasers = [np.zeros((4,))] * lasers
+        self.driven_distance = 0
 
     # Sets the direction for every laser relative to the car's rotation
     def set_lasers(self):
@@ -26,7 +27,7 @@ class Car:
             y = self.yPos + 600 * math.sin(radians)
             self.lasers[i] = np.array([[self.xPos, self.yPos], [x, y]])
 
-    def draw_car(self, win):
+    def draw(self, win):
         pygame.draw.circle(win, (211, 123, 23), (self.xPos, self.yPos), 5)
         laserColor = (155, 20, 155)
         for x in self.lasers:
@@ -50,23 +51,33 @@ class Car:
             self.angle += 360
 
     def update(self):
-        self.set_lasers()
+        # Keep velocity within bounds
+        self.vX = min(self.vX, 10)
+        self.vX = max(self.vX, -10)
+        self.vY = min(self.vY, 10)
+        self.vY = max(self.vY, -10)
 
+        # Apply constant acceleration
+        self.accelerate(5)
+
+        self.set_lasers()
         self.xPos += self.vX
         self.yPos += self.vY
         # drag force on the velocity
         self.vX -= self.vX * 0.06
         self.vY -= self.vY * 0.06
+        self.driven_distance = self.vX ** 2 + self.vY ** 2
+        
 
     def move(self, steer, acc):
         self.turn(steer)
         self.accelerate(acc)
 
     def crashed(self) -> bool:
-        for laser in self.lasers:
-            if math.dist((self.xPos, self.yPos), (laser[1][0], laser[1][1])) < 5:
-                return True
-        return False
+        return any(
+            math.dist((self.xPos, self.yPos), (laser[1][0], laser[1][1])) < 5
+            for laser in self.lasers
+        )
 
     def set_laser_length(self, borders):
         for x in self.lasers:

@@ -4,15 +4,10 @@ from tf_agents.trajectories import trajectory
 
 
 def compute_avg_return(environment, policy, num_episodes=10):
-
     total_return = 0.0
-    print(environment)
-    print()
-    print(environment.batch_size)
     for _ in range(num_episodes):
 
         time_step = environment.reset()
-        print(time_step)
         episode_return = 0.0
 
         while not time_step.is_last():
@@ -35,3 +30,5 @@ def collect_step(environment, policy, replay_buffer):
 
     # Add trajectory to the replay buffer
     replay_buffer.add_batch(traj)
+
+

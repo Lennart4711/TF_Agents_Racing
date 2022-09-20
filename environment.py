@@ -3,20 +3,16 @@ from __future__ import division
 from __future__ import print_function
 
 import math
-from helper import *
-from car import Car
+from envs.helper import *
+from envs.car import Car
 
 import numpy as np
 import pygame
 
 pygame.init()
-
-import numpy as np
-
 from tf_agents.specs import array_spec
 from tf_agents.environments import py_environment
 from tf_agents.trajectories import time_step as ts
-from tf_agents.specs import tensor_spec
 
 
 class Environment(py_environment.PyEnvironment):
@@ -25,7 +21,7 @@ class Environment(py_environment.PyEnvironment):
         self.accFactor = 0.15
         self.dimensions = (800, 600)
         self.laser_amount = 6
-        self.discount = 1.0
+        self.discount = 0.98
         # Game variables
         self.car = Car(15, 15, 90, self.laser_amount)
         self.borders = load_boarders("borders.txt")
@@ -34,37 +30,32 @@ class Environment(py_environment.PyEnvironment):
 
         # Environment variables
         self._action_spec = array_spec.BoundedArraySpec(
-            shape=(2,), dtype=np.float32, minimum=-1.0, maximum=1.0, name="action"
+            shape=(2,), dtype=np.float32, minimum=0, maximum=1.0, name="action"
         )
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(1, 6), dtype=np.float32, minimum=0, name="observation"
+            shape=(self.laser_amount,),
+            dtype=np.float32,
+            minimum=0.0,
+            maximum=600.0,
+            name="observation",
         )
 
         self._episode_ended = False
 
     def action_spec(self):
-        return tensor_spec.from_spec(self._action_spec)
-        # return self._action_spec
+        return self._action_spec
 
     def observation_spec(self):
         return self._observation_spec
 
     def _reset(self):
-        print("reset start")
-
         self._episode_ended = False
         self.car = Car(15, 15, 90, self.laser_amount)
         self.car.set_lasers()
         self.car.set_laser_length(self.borders)
 
-        # lasers = [x.length() for x in self.car.lasers]
-        lasers = [
-            math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1]))
-            for x in self.car.lasers
-        ]
-        # convert lasers to numpy array
-        lasers = np.array(lasers, dtype=np.float32)
-        print("reset last")
+        lasers = self.calc_lasers()
+
         return ts.restart(observation=lasers)
 
     def _step(self, action):
@@ -75,31 +66,36 @@ class Environment(py_environment.PyEnvironment):
         self.car.update()
         self.car.set_lasers()
         self.car.set_laser_length(self.borders)
-
+        # self.render()
         # self._episode_ended = True # Reward after every action
         # make true, if the agent crashes or reaches the goal
+        lasers = self.calc_lasers()
 
-        # calulate reward
-        reward = 0
         if self.car.crashed():
-            reward = -10
+            reward = -200
             self._episode_ended = True
+            return ts.termination(observation=lasers, reward=reward)
         else:
-            reward = 0.1
+            reward = math.sqrt(self.car.driven_distance)
+            return ts.transition(
+                observation=lasers, reward=reward, discount=self.discount
+            )
 
-        # lasers = [x.length() for x in self.car.lasers]
+    def calc_lasers(self):
         lasers = [
             math.dist((self.car.xPos, self.car.yPos), (x[1][0], x[1][1]))
             for x in self.car.lasers
         ]
-        # convert lasers to numpy array
-        lasers = np.array(lasers)
-        print("step last")
-        return ts.transition(observation=lasers, reward=reward)
+        return np.array(lasers, dtype=np.float32)
 
-    def render(self):
+    def render(self, mode="human"):
         self.win.fill((0, 0, 0))
-        self.car.draw_car(self.win)
+        self.car.draw(self.win)
         for x in self.borders:
             pygame.draw.line(self.win, (255, 255, 255), x[0], x[1])
         pygame.display.update()
+        # throw away the events
+        pygame.event.get()
+
+    def close(self):
+        pygame.quit()

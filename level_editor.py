@@ -59,10 +59,7 @@ class Editor:
     def store_borders(self):
         """Store the borders as a list of position tuples in a file"""
         with open("borders.txt", "w") as file:
-            out = []
-            for border in self.borders:
-                # Append a tupel for each border
-                out.append((border.start_pos, border.end_pos))
+            out = [(border.start_pos, border.end_pos) for border in self.borders]
             # Write the list to the file
             file.write(str(out))
 
