@@ -1,6 +1,16 @@
-from tf_agents.drivers import py_driver
-from tf_agents.policies import py_tf_eager_policy
 from tf_agents.trajectories import trajectory
+
+import numpy as np
+import ast
+
+
+def load_borders(file_name):
+    """Load the list of points and convert to numpy array"""
+    with open(file_name, "r") as file:
+        # Read the file and convert to list of tuples
+        out = ast.literal_eval(file.read())
+        # Convert to numpy array
+        return np.array(out)
 
 
 def compute_avg_return(environment, policy, num_episodes=10):

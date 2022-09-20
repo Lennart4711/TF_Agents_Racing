@@ -1,15 +1,11 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import math
-from envs.helper import *
-from envs.car import Car
-
 import numpy as np
 import pygame
-
 pygame.init()
+
+from helpers import load_borders
+from car import Car
+
 from tf_agents.specs import array_spec
 from tf_agents.environments import py_environment
 from tf_agents.trajectories import time_step as ts
@@ -20,17 +16,17 @@ class Environment(py_environment.PyEnvironment):
         # Constants
         self.accFactor = 0.15
         self.dimensions = (800, 600)
-        self.laser_amount = 6
+        self.laser_amount = 8
         self.discount = 0.98
         # Game variables
         self.car = Car(15, 15, 90, self.laser_amount)
-        self.borders = load_boarders("borders.txt")
+        self.borders = load_borders("borders.txt")
         # Pygame
         self.win = pygame.display.set_mode(self.dimensions)
 
         # Environment variables
         self._action_spec = array_spec.BoundedArraySpec(
-            shape=(2,), dtype=np.float32, minimum=0, maximum=1.0, name="action"
+            shape=(2,), dtype=np.float32, minimum=-5.0, maximum=5.0, name="action"
         )
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(self.laser_amount,),
@@ -61,7 +57,6 @@ class Environment(py_environment.PyEnvironment):
     def _step(self, action):
         if self._episode_ended:
             return self.reset()
-
         self.car.move(action[0], action[1])
         self.car.update()
         self.car.set_lasers()
@@ -76,7 +71,7 @@ class Environment(py_environment.PyEnvironment):
             self._episode_ended = True
             return ts.termination(observation=lasers, reward=reward)
         else:
-            reward = math.sqrt(self.car.driven_distance)
+            reward = self.car.driven_distance
             return ts.transition(
                 observation=lasers, reward=reward, discount=self.discount
             )

@@ -1,11 +1,8 @@
 import matplotlib.pyplot as plt
 from environment import Environment
-from agent import new_agent
-from helpers import compute_avg_return, collect_step
+from helpers import compute_avg_return
 from observer import new_replay_buffer
-from tf_agents.environments import tf_py_environment, validate_py_environment
-from tf_agents.policies import random_tf_policy
-from tf_agents.utils import common
+from tf_agents.environments import tf_py_environment
 from tf_agents.networks import actor_distribution_network
 from tf_agents.trajectories import trajectory
 from tf_agents.agents.reinforce import reinforce_agent
@@ -18,7 +15,7 @@ collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 fc_layer_params = (200, 100)
 batch_size = 2  # @param {type:"integer"}
-learning_rate = 0.01  # @param {type:"number"}
+learning_rate = .2  # @param {type:"number"}
 log_interval = 200  # @param {type:"integer"}
 num_atoms = 51  # @param {type:"integer"}
 min_q_value = -20  # @param {type:"integer"}
@@ -94,7 +91,6 @@ if __name__ == '__main__':
     for _ in range(num_iterations):
         collect_episode(train_env, collect_policy)
         experience = replay_buffer.gather_all()
-        print(len(experience))
         train_loss = tf_agent.train(experience)
         replay_buffer.clear()
         step = tf_agent.train_step_counter.numpy()
@@ -118,48 +114,3 @@ if __name__ == '__main__':
         episode = (i+1) * eval_interval
         print("greedy at episode ", episode, " is ", greedy[i])
         print("collect at episode ", episode, " is ", collect[i])
-
-# random_policy = random_tf_policy.RandomTFPolicy(
-#     train_env.time_step_spec(), train_env.action_spec()
-# )
-# for _ in range(initial_collect_steps):
-#     collect_step(train_env, random_policy, replay_buffer)
-
-# # Dataset generates trajectories with shape [Bx2x...]
-# dataset = replay_buffer.as_dataset(
-#     num_parallel_calls=3, sample_batch_size=batch_size, num_steps=2 + 1
-# ).prefetch(3)
-
-# iterator = iter(dataset)
-
-# agent.train = common.function(agent.train)
-# agent.train_step_counter.assign(0)
-
-# avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
-# returns = [avg_return]
-
-# for _ in range(num_iterations):
-#     # Collect a few steps using collect_policy and save to the replay buffer.
-#     for _ in range(collect_steps_per_iteration):
-#         collect_step(train_env, agent.collect_policy, replay_buffer)
-
-#     # Sample a batch of data from the buffer and update the agent's network.
-#     experience, unused_info = next(iterator)
-#     train_loss = agent.train(experience).loss
-
-#     step = agent.train_step_counter.numpy()
-
-#     if step % log_interval == 0:
-#         print("step = {0}: loss = {1}".format(step, train_loss))
-
-#     if step % eval_interval == 0:
-#         avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
-#         print("step = {0}: Average Return = {1}".format(step, avg_return))
-#         returns.append(avg_return)
-
-
-# steps = range(0, num_iterations + 1, eval_interval)
-# plt.plot(steps, returns)
-# plt.ylabel("Average Return")
-# plt.xlabel("Step")
-# plt.ylim(top=250)

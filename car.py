@@ -52,13 +52,13 @@ class Car:
 
     def update(self):
         # Keep velocity within bounds
-        self.vX = min(self.vX, 10)
-        self.vX = max(self.vX, -10)
-        self.vY = min(self.vY, 10)
-        self.vY = max(self.vY, -10)
+        self.vX = min(self.vX, 5)
+        self.vX = max(self.vX, -5)
+        self.vY = min(self.vY, 5)
+        self.vY = max(self.vY, -5)
 
         # Apply constant acceleration
-        self.accelerate(5)
+        self.accelerate(0)
 
         self.set_lasers()
         self.xPos += self.vX
@@ -70,8 +70,8 @@ class Car:
         
 
     def move(self, steer, acc):
-        self.turn(steer)
-        self.accelerate(acc)
+        self.turn(steer/2)
+        self.accelerate(acc+4)
 
     def crashed(self) -> bool:
         return any(
