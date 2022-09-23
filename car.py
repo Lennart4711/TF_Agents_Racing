@@ -58,7 +58,7 @@ class Car:
         self.vY = max(self.vY, -5)
 
         # Apply constant acceleration
-        self.accelerate(0)
+        self.accelerate(10)
 
         self.set_lasers()
         self.xPos += self.vX

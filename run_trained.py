@@ -1,7 +1,7 @@
 import tensorflow as tf
-from main import eval_env, eval_policy, tf_agent, actor_net, optimizer
+from reinforce_agent import eval_env, eval_policy, tf_agent, actor_net, optimizer
 
-WHICH_TO_RESTORE = 7
+WHICH_TO_RESTORE = 8
 
 checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=actor_net)
 checkpoint_dir = 'tmp/pre_train_checkpoints'
@@ -11,6 +11,8 @@ checkpoint.restore(restore_path)
 tf_agent.initialize()
 
 while True:
+    print("running episode")
+
     time_step = eval_env.reset()
     episode_return = 0.0
     while not time_step.is_last():
