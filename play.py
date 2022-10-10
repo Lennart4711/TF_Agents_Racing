@@ -12,16 +12,16 @@ while True:
             pygame.quit()
             quit()
 
-    action = [0,0]
+    action = [0, 0]
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        action[0] = -.5
+        action[0] = -0.2
     if keys[pygame.K_RIGHT]:
-        action[0] = .5
+        action[0] = 0.2
     if keys[pygame.K_UP]:
-        action[1] = +.5
+        action[1] = +0.1
     if keys[pygame.K_DOWN]:
-        action[1] = -.5
-    
+        action[1] = -0.1
+
     time_step = env.step(action)
     env.render(telemetry=True)

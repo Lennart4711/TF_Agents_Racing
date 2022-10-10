@@ -88,7 +88,7 @@ def collect_episode(environment, policy, num_episodes=1):
         replay_buffer.add_batch(traj)
 
         time_step_counter += 1
-        #environment.envs[0].render(telemetry=True)
+        # environment.envs[0].render(telemetry=True)
         print(f"Episode with with {time_step_counter} steps and return {total_reward}")
 
 

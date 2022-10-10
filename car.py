@@ -43,7 +43,7 @@ class Car:
         self.vY -= yN * b * 0.05
 
     def turn(self, direction):
-        self.angle += 2 * direction # between -1 and 1
+        self.angle += direction  # between -1 and 1
         if self.angle > 720 or self.angle < -720:
             self.angle = 0
 
@@ -54,14 +54,13 @@ class Car:
         self.vY = min(self.vY, 5)
         self.vY = max(self.vY, -5)
 
-        # Contant acc to force the car to act
-        self.accelerate(.5)
-        # drag force on the velocity
-        self.accelerate(-.06)
         self.set_lasers()
         self.xPos += self.vX
         self.yPos += self.vY
-        self.driven_distance = self.vX**2 + self.vY**2
+        self.driven_distance = math.sqrt(self.vX**2 + self.vY**2)
+        # drag force
+        self.vX *= 0.99
+        self.vY *= 0.99
 
     def move(self, steer, acc):
         self.turn(steer)

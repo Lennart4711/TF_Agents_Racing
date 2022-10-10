@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import time
 import pygame
 import ast
 
@@ -40,6 +41,7 @@ class Environment(py_environment.PyEnvironment):
 
         self._episode_ended = False
         self.last_action = None
+        self.state = 0
 
     def action_spec(self):
         return self._action_spec
@@ -49,10 +51,10 @@ class Environment(py_environment.PyEnvironment):
 
     def _reset(self):
         self._episode_ended = False
+        self.state = 0
         self.car = Car(15, 15, 90, self.laser_amount)
         self.car.set_lasers()
         self.car.set_laser_length(self.borders)
-
         lasers = self.calc_lasers()
 
         return ts.restart(observation=lasers)
@@ -61,6 +63,7 @@ class Environment(py_environment.PyEnvironment):
         if self._episode_ended:
             return self.reset()
         self.last_action = action
+        self.state += 1
         self.car.move(action[0], action[1])
         self.car.update()
         self.car.set_lasers()
@@ -69,7 +72,6 @@ class Environment(py_environment.PyEnvironment):
         # self._episode_ended = True # Reward after every action
         # make true, if the agent crashes or reaches the goal
         lasers = self.calc_lasers()
-
         if self.car.crashed():
             reward = -200
             self._episode_ended = True
@@ -87,21 +89,20 @@ class Environment(py_environment.PyEnvironment):
         ]
         return np.array(lasers, dtype=np.float32)
 
-    def render(self, mode="human", telemetry: bool=False):
+    def render(self, mode="human", telemetry: bool = False):
         self.win.fill((0, 0, 0))
         self.car.draw(self.win)
         for x in self.borders:
             pygame.draw.line(self.win, (255, 255, 255), x[0], x[1])
 
         if telemetry:
-            # Draw a text box with the last action
-            font = pygame.font.SysFont("comicsans", 30)
-            text = font.render(
-                f"Last action: {self.last_action}", 1, (255, 255, 255)
-            )
-            self.win.blit(text, (10, 10))
+            # Write the last_action in the upper right corner
+            font = pygame.font.SysFont("comicsans", 20)
+            text = font.render(f"Last action: {self.last_action}", 1, (255, 255, 255))
+            self.win.blit(text, (self.dimensions[0] - 10 - text.get_width(), 10))
 
-
+        if mode == "slow":
+            time.sleep(0.01)
         pygame.display.update()
         # throw away the events
         pygame.event.get()
@@ -109,7 +110,7 @@ class Environment(py_environment.PyEnvironment):
     def close(self):
         pygame.quit()
 
-    
+
 def load_borders(file_name):
     """Load the list of points and convert to numpy array"""
     with open(file_name, "r") as file:
