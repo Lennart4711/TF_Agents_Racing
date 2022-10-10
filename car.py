@@ -43,12 +43,9 @@ class Car:
         self.vY -= yN * b * 0.05
 
     def turn(self, direction):
-        # direction between 1 or -1
-        self.angle += 2 * direction
-        if self.angle > 360:
-            self.angle -= 360
-        if self.angle < 0:
-            self.angle += 360
+        self.angle += 2 * direction # between -1 and 1
+        if self.angle > 720 or self.angle < -720:
+            self.angle = 0
 
     def update(self):
         # Keep velocity within bounds
@@ -57,21 +54,18 @@ class Car:
         self.vY = min(self.vY, 5)
         self.vY = max(self.vY, -5)
 
-        # Apply constant acceleration
-        self.accelerate(10)
-
+        # Contant acc to force the car to act
+        self.accelerate(.5)
+        # drag force on the velocity
+        self.accelerate(-.06)
         self.set_lasers()
         self.xPos += self.vX
         self.yPos += self.vY
-        # drag force on the velocity
-        self.vX -= self.vX * 0.06
-        self.vY -= self.vY * 0.06
-        self.driven_distance = self.vX ** 2 + self.vY ** 2
-        
+        self.driven_distance = self.vX**2 + self.vY**2
 
     def move(self, steer, acc):
-        self.turn(steer/2)
-        self.accelerate(acc+4)
+        self.turn(steer)
+        self.accelerate(acc)
 
     def crashed(self) -> bool:
         return any(

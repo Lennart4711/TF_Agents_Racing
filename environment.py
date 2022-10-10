@@ -1,9 +1,10 @@
 import math
 import numpy as np
 import pygame
+import ast
+
 pygame.init()
 
-from helpers import load_borders
 from car import Car
 
 from tf_agents.specs import array_spec
@@ -12,7 +13,7 @@ from tf_agents.trajectories import time_step as ts
 
 
 class Environment(py_environment.PyEnvironment):
-    def __init__(self):
+    def __init__(self, has_surface=True):
         # Constants
         self.accFactor = 0.15
         self.dimensions = (800, 600)
@@ -22,11 +23,12 @@ class Environment(py_environment.PyEnvironment):
         self.car = Car(15, 15, 90, self.laser_amount)
         self.borders = load_borders("borders.txt")
         # Pygame
-        self.win = pygame.display.set_mode(self.dimensions)
+        if has_surface:
+            self.win = pygame.display.set_mode(self.dimensions)
 
         # Environment variables
         self._action_spec = array_spec.BoundedArraySpec(
-            shape=(2,), dtype=np.float32, minimum=-5.0, maximum=5.0, name="action"
+            shape=(2,), dtype=np.float32, minimum=-1.0, maximum=1.0, name="action"
         )
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(self.laser_amount,),
@@ -37,6 +39,7 @@ class Environment(py_environment.PyEnvironment):
         )
 
         self._episode_ended = False
+        self.last_action = None
 
     def action_spec(self):
         return self._action_spec
@@ -57,6 +60,7 @@ class Environment(py_environment.PyEnvironment):
     def _step(self, action):
         if self._episode_ended:
             return self.reset()
+        self.last_action = action
         self.car.move(action[0], action[1])
         self.car.update()
         self.car.set_lasers()
@@ -83,14 +87,33 @@ class Environment(py_environment.PyEnvironment):
         ]
         return np.array(lasers, dtype=np.float32)
 
-    def render(self, mode="human"):
+    def render(self, mode="human", telemetry: bool=False):
         self.win.fill((0, 0, 0))
         self.car.draw(self.win)
         for x in self.borders:
             pygame.draw.line(self.win, (255, 255, 255), x[0], x[1])
+
+        if telemetry:
+            # Draw a text box with the last action
+            font = pygame.font.SysFont("comicsans", 30)
+            text = font.render(
+                f"Last action: {self.last_action}", 1, (255, 255, 255)
+            )
+            self.win.blit(text, (10, 10))
+
+
         pygame.display.update()
         # throw away the events
         pygame.event.get()
 
     def close(self):
         pygame.quit()
+
+    
+def load_borders(file_name):
+    """Load the list of points and convert to numpy array"""
+    with open(file_name, "r") as file:
+        # Read the file and convert to list of tuples
+        out = ast.literal_eval(file.read())
+        # Convert to numpy array
+        return np.array(out)

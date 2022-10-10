@@ -15,7 +15,7 @@ collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_capacity = 100000  # @param {type:"integer"}
 fc_layer_params = (200, 100)
 batch_size = 2  # @param {type:"integer"}
-learning_rate = .2  # @param {type:"number"}
+learning_rate = 0.2  # @param {type:"number"}
 log_interval = 200  # @param {type:"integer"}
 num_atoms = 51  # @param {type:"integer"}
 min_q_value = -20  # @param {type:"integer"}
@@ -43,8 +43,10 @@ actor_net = actor_distribution_network.ActorDistributionNetwork(
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 train_step_counter = tf.Variable(0)
 pre_train_checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=actor_net)
-checkpoint_dir = 'tmp/pre_train_checkpoints'
-manager = tf.train.CheckpointManager(pre_train_checkpoint, checkpoint_dir, max_to_keep=50, checkpoint_name='save')
+checkpoint_dir = "tmp/pre_train_checkpoints"
+manager = tf.train.CheckpointManager(
+    pre_train_checkpoint, checkpoint_dir, max_to_keep=50, checkpoint_name="save"
+)
 
 tf_agent = reinforce_agent.ReinforceAgent(
     train_env.time_step_spec(),
@@ -68,6 +70,8 @@ manager.save()
 
 greedy = []
 collect = []
+
+
 def collect_episode(environment, policy, num_episodes=1):
     time_step = environment.reset()
     time_step_counter = 0
@@ -84,10 +88,11 @@ def collect_episode(environment, policy, num_episodes=1):
         replay_buffer.add_batch(traj)
 
         time_step_counter += 1
-        environment.envs[0].render()
-    print(f"Episode with with {time_step_counter} steps and return {total_reward}")
+        #environment.envs[0].render(telemetry=True)
+        print(f"Episode with with {time_step_counter} steps and return {total_reward}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     for _ in range(num_iterations):
         collect_episode(train_env, collect_policy)
         experience = replay_buffer.gather_all()
@@ -102,15 +107,17 @@ if __name__ == '__main__':
             avg_greedy = compute_avg_return(eval_env, eval_policy, num_eval_episodes)
             print("step = {0}: Greedy avg Return = {1}".format(step, avg_greedy))
             greedy.append(avg_greedy)
-            avg_collect = compute_avg_return(eval_env, collect_policy, num_eval_episodes)
+            avg_collect = compute_avg_return(
+                eval_env, collect_policy, num_eval_episodes
+            )
             print("step = {0}: Collect avg Return = {1}".format(step, avg_collect))
             collect.append(avg_collect)
 
             if avg_greedy > 10000:
                 break
-        
+
     print("total training episodes: ", step)
     for i in range(len(greedy)):
-        episode = (i+1) * eval_interval
+        episode = (i + 1) * eval_interval
         print("greedy at episode ", episode, " is ", greedy[i])
         print("collect at episode ", episode, " is ", collect[i])

@@ -1,12 +1,14 @@
 import tensorflow as tf
 from reinforce_agent import eval_env, eval_policy, tf_agent, actor_net, optimizer
 
-WHICH_TO_RESTORE = 8
+WHICH_TO_RESTORE = 6
 
 checkpoint = tf.train.Checkpoint(optimizer=optimizer, model=actor_net)
-checkpoint_dir = 'tmp/pre_train_checkpoints'
-manager = tf.train.CheckpointManager(checkpoint, checkpoint_dir, max_to_keep=20, checkpoint_name='save')
-restore_path = manager.checkpoints[WHICH_TO_RESTORE-1]
+checkpoint_dir = "tmp/pre_train_checkpoints"
+manager = tf.train.CheckpointManager(
+    checkpoint, checkpoint_dir, max_to_keep=20, checkpoint_name="save"
+)
+restore_path = manager.checkpoints[WHICH_TO_RESTORE - 1]
 checkpoint.restore(restore_path)
 tf_agent.initialize()
 
